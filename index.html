@@ -5,35 +5,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fotboll: Higher or Lower</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
-        .card { background: #333; padding: 20px; border-radius: 15px; width: 300px; margin: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        .goal-count { font-size: 2.5rem; color: #00ff88; font-weight: bold; }
-        button { padding: 10px 20px; margin: 5px; font-size: 1rem; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
-        .btn-up { background: #00ff88; }
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background: #121212; 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            text-align: center; 
+        }
+        .container { width: 90%; max-width: 800px; }
+        .score-board { font-size: 1.5rem; margin-bottom: 20px; color: #00ff88; }
+        .game-area { 
+            display: flex; 
+            justify-content: space-around; 
+            align-items: center; 
+            gap: 20px;
+        }
+        .card { 
+            background: #222; 
+            padding: 30px; 
+            border-radius: 20px; 
+            width: 250px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+        .goal-count { font-size: 3rem; color: #00ff88; font-weight: bold; margin: 15px 0; }
+        .vs { font-size: 2rem; font-weight: bold; color: #ffcc00; }
+        button { 
+            padding: 12px 24px; 
+            margin: 8px; 
+            font-size: 1.1rem; 
+            cursor: pointer; 
+            border-radius: 50px; 
+            border: none; 
+            font-weight: bold;
+            transition: 0.2s;
+            width: 120px;
+        }
+        .btn-up { background: #00ff88; color: #000; }
         .btn-down { background: #ff4b2b; color: white; }
+        button:hover { transform: scale(1.05); opacity: 0.9; }
     </style>
 </head>
 <body>
-    <div>
-        <h1>Higher or Lower</h1>
-        <p id="score">Poäng: 0</p>
-        <div style="display: flex; align-items: center;">
+    <div class="container">
+        <h1>Higher or Lower: Målskyttar</h1>
+        <div class="score-board" id="score">Poäng: 0</div>
+        
+        <div class="game-area">
             <div class="card">
-                <h2 id="name-left">---</h2>
-                <p>Mål:</p>
+                <h2 id="name-left">Laddar...</h2>
+                <p>Har gjort:</p>
                 <div class="goal-count" id="goals-left">0</div>
+                <p>Mål totalt</p>
             </div>
-            <div style="font-size: 2rem; font-weight: bold;">VS</div>
+
+            <div class="vs">VS</div>
+
             <div class="card">
-                <h2 id="name-right">---</h2>
+                <h2 id="name-right">Laddar...</h2>
                 <p>har gjort...</p>
-                <button class="btn-up" onclick="guess('higher')">Fler ▲</button>
-                <button class="btn-down" onclick="guess('lower')">Färre ▼</button>
+                <div style="margin-top: 20px;">
+                    <button class="btn-up" onclick="guess('higher')">Fler ▲</button>
+                    <button class="btn-down" onclick="guess('lower')">Färre ▼</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Spelardata (Mål per april 2026)
         const players = [
             { name: "Cristiano Ronaldo", goals: 925 },
             { name: "Lionel Messi", goals: 900 },
@@ -41,44 +85,49 @@
             { name: "Zlatan Ibrahimović", goals: 573 },
             { name: "Erling Haaland", goals: 310 },
             { name: "Kylian Mbappé", goals: 340 },
-            { name: "Harry Kane", goals: 450 }
+            { name: "Harry Kane", goals: 450 },
+            { name: "Luis Suárez", goals: 570 },
+            { name: "Neymar Jr", goals: 440 },
+            { name: "Karim Benzema", goals: 475 }
         ];
 
         let score = 0;
-        let leftP, rightP;
+        let leftPlayer, rightPlayer;
 
-        function start() {
-            leftP = players[Math.floor(Math.random() * players.length)];
-            next();
+        function init() {
+            score = 0;
+            leftPlayer = players[Math.floor(Math.random() * players.length)];
+            newRound();
         }
 
-        function next() {
+        function newRound() {
             do {
-                rightP = players[Math.floor(Math.random() * players.length)];
-            } while (rightP === leftP);
+                rightPlayer = players[Math.floor(Math.random() * players.length)];
+            } while (rightPlayer === leftPlayer);
 
-            document.getElementById("name-left").textContent = leftP.name;
-            document.getElementById("goals-left").textContent = leftP.goals;
-            document.getElementById("name-right").textContent = rightP.name;
+            document.getElementById("name-left").textContent = leftPlayer.name;
+            document.getElementById("goals-left").textContent = leftPlayer.goals;
+            document.getElementById("name-right").textContent = rightPlayer.name;
             document.getElementById("score").textContent = `Poäng: ${score}`;
         }
 
-        function guess(move) {
-            const isHigher = rightP.goals >= leftP.goals;
-            const win = (move === 'higher' && isHigher) || (move === 'lower' && !isHigher);
+        function guess(choice) {
+            const isHigher = rightPlayer.goals >= leftPlayer.goals;
+            const correct = (choice === 'higher' && isHigher) || (choice === 'lower' && !isHigher);
 
-            if (win) {
+            if (correct) {
                 score++;
-                alert("Rätt! " + rightP.name + " har gjort " + rightP.goals + " mål.");
-                leftP = rightP;
-                next();
+                alert(`Rätt! ${rightPlayer.name} har gjort ${rightPlayer.goals} mål.`);
+                leftPlayer = rightPlayer;
+                newRound();
             } else {
-                alert("Fel! " + rightP.name + " har gjort " + rightP.goals + " mål. Din poäng: " + score);
-                score = 0;
-                start();
+                alert(`Fel! ${rightPlayer.name} har gjort ${rightPlayer.goals} mål. Din slutpoäng: ${score}`);
+                init();
             }
         }
-        start();
+
+        // Starta spelet
+        init();
     </script>
 </body>
 </html>
